@@ -13,7 +13,7 @@ This is a voice call processing system that handles outbound calls, processes we
   - [1. Call Initiation Flow](#1-call-initiation-flow)
   - [2. Call Processing Flow](#2-call-processing-flow)
   - [3. Event Processing Flow](#3-event-processing-flow)
-  - [4. Analytics Flow](#4-analytics-flow)
+  - [4. Business Operations Flow](#4-business-operations-flow)
 - [Key Integration Points](#key-integration-points)
 - [Event Types](#event-types)
 - [Technology Stack](#technology-stack)
@@ -22,7 +22,8 @@ This is a voice call processing system that handles outbound calls, processes we
 
 ## System Architecture
 
-<img width="2803" height="2058" alt="image" src="https://github.com/user-attachments/assets/3717706a-2041-42e0-9b8f-a98c0a8b2fc2" />
+<img width="1866" height="1380" alt="image" src="https://github.com/user-attachments/assets/35b5f23f-e805-4085-9cc2-0a3969bf4592" />
+
 
 ---
 
@@ -99,22 +100,27 @@ This is a voice call processing system that handles outbound calls, processes we
 
 ---
 
-### 4. Analytics Flow
+### 4. Business Operations Flow
 
 #### User
-- **Purpose**: End user or analytics consumer
-- **Action**: Queries analytics data
+- **Purpose**: Business user performing task management operations
+- **Actions**: Executes business tasks:
+  - Field Writeback
+  - Reschedule Call
+  - Delete Task
+  - Incoming Call
 
-#### WebAPI Service (`web_api.py`)
-- **Purpose**: API layer for analytics queries
+#### Business API (`business_api.py`)
+- **Purpose**: API layer for business operations
 - **Actions**:
-  - Receives analytics requests from users
-  - Queries Snowflake data warehouse
-- **Output**: Returns analytics data to user
+  - Receives business task requests from users
+  - Processes task operations
+  - Updates Snowflake data warehouse
+- **Output**: Executes business logic and persists data
 
 #### Snowflake
 - **Purpose**: Data warehouse
-- **Function**: Stores historical call data and analytics
+- **Function**: Stores business task data, call records, and operational analytics
 
 ---
 
@@ -129,8 +135,8 @@ This is a voice call processing system that handles outbound calls, processes we
 | Retell | AWS Lambda | Webhook POST |
 | AWS Lambda | SQS #2 | AWS SQS publish |
 | SQS #2 | WebhookProcessor | SQS consumer polling |
-| User | WebAPI | HTTP API request |
-| WebAPI | Snowflake | Database query |
+| User | Business API | HTTP API request |
+| Business API | Snowflake | Database query |
 
 ---
 
@@ -154,4 +160,3 @@ The system uses ABT (Activity-Based Tracking) events to monitor call lifecycle:
 - **Data Warehouse**: Snowflake
 - **Language**: Python
 - **Architecture Pattern**: Event-driven microservices
-
