@@ -22,7 +22,7 @@ This is a voice call processing system that handles outbound calls, processes we
 
 ## System Architecture
 
-<img width="1844" height="1330" alt="image" src="https://github.com/user-attachments/assets/47ee2fad-7130-4467-98fe-76120d34408f" />
+<img width="1768" height="1118" alt="image" src="https://github.com/user-attachments/assets/4687f0fe-2c2b-465b-9a81-97cd05dbb369" />
 
 
 ---
