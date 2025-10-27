@@ -14,7 +14,6 @@ This is a voice call processing system that handles outbound calls, processes we
   - [2. Call Processing Flow](#2-call-processing-flow)
   - [3. Event Processing Flow](#3-event-processing-flow)
   - [4. Business Operations Flow](#4-business-operations-flow)
-- [Key Integration Points](#key-integration-points)
 - [Event Types](#event-types)
 - [Technology Stack](#technology-stack)
 
@@ -102,41 +101,19 @@ This is a voice call processing system that handles outbound calls, processes we
 
 ### 4. Business Operations Flow
 
-#### User
-- **Purpose**: Business user performing task management operations
-- **Actions**: Executes business tasks:
-  - Field Writeback
-  - Reschedule Call
-  - Delete Task
-  - Incoming Call
-
 #### Business API (`business_api.py`)
 - **Purpose**: API layer for business operations
 - **Actions**:
-  - Receives business task requests from users
-  - Processes task operations
-  - Updates Snowflake data warehouse
+  - FIELD_WRITEBACK = "field_writeback"
+  - RESCHEDULE_CALL = "reschedule_call"
+  - DELETE_SCHEDULED_TASK = "delete_scheduled_task"
+  - UPDATE_TIMEZONE = "update_timezone"
+  - INCOMING_CALL = "incoming_call"
+  - SET_DISPOSITION = "set_disposition"
+  - SEND_ABT_EVENT = "send_abt_event"
+  - CALL_ANALYSED = "call_analysed"
+  - NWB = "note_writeback"
 - **Output**: Executes business logic and persists data
-
-#### Snowflake
-- **Purpose**: Data warehouse
-- **Function**: Stores business task data, call records, and operational analytics
-
----
-
-## Key Integration Points
-
-| Source | Target | Integration Method |
-|--------|--------|-------------------|
-| Engage | Voice API | HTTP/Internal API call |
-| Voice API | SQS #1 | AWS SQS publish |
-| SQS #1 | Call Processor | SQS consumer polling |
-| Call Processor | Retell | HTTP API call |
-| Retell | AWS Lambda | Webhook POST |
-| AWS Lambda | SQS #2 | AWS SQS publish |
-| SQS #2 | WebhookProcessor | SQS consumer polling |
-| User | Business API | HTTP API request |
-| Business API | Snowflake | Database query |
 
 ---
 
@@ -144,11 +121,13 @@ This is a voice call processing system that handles outbound calls, processes we
 
 The system uses ABT (Activity-Based Triggering) events to monitor call lifecycle:
 
-| Event Name | Trigger Point | Sent By |
-|------------|--------------|---------|
-| **Voice call initiated** | When call is triggered | Voice Call Processor |
-| **Call started** | When Retell confirms call connection | Retell WebhookProcessor |
-| **Call completed** | After call analysis is complete (with DB update) | Retell WebhookProcessor |
+- VOICE_AI_CALL_INITIATED = "voice_ai_call_initiated"
+- VOICE_AI_CALL_FAILED = "voice_ai_call_failed"
+- VOICE_AI_CALL_STARTED = "voice_ai_call_started"
+- VOICE_AI_CALL_LEFT_VOICEMAIL = "voice_ai_call_left_voicemail"
+- VOICE_AI_CALL_COMPLETED = "voice_ai_call_completed"
+- VOICE_AI_CALL_RESCHEDULED = "voice_ai_call_rescheduled"
+- VOICE_AI_CALL_PARTIALLY_COMPLETED = "voice_ai_call_partially_completed"
 
 ---
 
@@ -157,6 +136,5 @@ The system uses ABT (Activity-Based Triggering) events to monitor call lifecycle
 - **Message Queuing**: AWS SQS
 - **Serverless Computing**: AWS Lambda
 - **Voice Platform**: Retell
-- **Data Warehouse**: Snowflake
 - **Language**: Python
 - **Architecture Pattern**: Event-driven microservices
