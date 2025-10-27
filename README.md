@@ -99,35 +99,51 @@ This is a voice call processing system that handles outbound calls, processes we
 
 ---
 
-### 4. Business Operations Flow
+## 4. Business Operations Flow
 
-#### Business API (`business_api.py`)
-- **Purpose**: API layer for business operations
-- **Actions**:
-  - FIELD_WRITEBACK = "field_writeback"
-  - RESCHEDULE_CALL = "reschedule_call"
-  - DELETE_SCHEDULED_TASK = "delete_scheduled_task"
-  - UPDATE_TIMEZONE = "update_timezone"
-  - INCOMING_CALL = "incoming_call"
-  - SET_DISPOSITION = "set_disposition"
-  - SEND_ABT_EVENT = "send_abt_event"
-  - CALL_ANALYSED = "call_analysed"
-  - NWB = "note_writeback"
-- **Output**: Executes business logic and persists data
+### Business API (`business_api.py`)
+- **Purpose**: Internal business logic API for executing tasks based on call outcomes
+- **Authentication**: Business API key + Retell authentication
+- **Endpoints**:
+  
+  - **`POST /api/v2/voice-ai/trigger`**
+    - **Purpose**: Execute business tasks based on call data and transcripts
+    - **Task Types**:
+      - `field writeback`: Updates CRM/database fields with information collected during the call. Ensures call data is persisted back to source system.
+      - `reschedule call`: Schedules follow-up calls based on user request during conversation. Creates new scheduled task with preferred date/time.
+      - `delete scheduled task`: Cancels previously scheduled calls or tasks.
+      - `update timezone`: Updates contact's timezone based on call time preferences.
+      - `incoming call`: Handles routing logic for inbound calls.
+      - `set disposition`: Sets final call outcome/disposition code (e.g., `screening_complete`, `call_rescheduled`).
+      - `send abt event`: Manually triggers analytics/business tracking events.
+      - `call analysed`: Processes comprehensive call analysis results.
+      - `note writeback`: Writes call summary notes back to CRM.
+        
+    - **Workflow**:
+      1. Receives task request with call data and transcript
+      2. Processes transcript to extract structured information
+      3. Validates task configuration against business rules
+      4. Executes task-specific handler
+      5. Updates database with task results
+      6. Returns task execution status
+      
+- **Output**: Executes business logic and persists data to database 
 
 ---
 
 ## Event Types
 
-The system uses ABT (Activity-Based Triggering) events to monitor call lifecycle:
+The system uses ABT (Activity-Based Tracking) events to monitor call lifecycle and trigger downstream workflows:
 
-- VOICE_AI_CALL_INITIATED = "voice_ai_call_initiated"
-- VOICE_AI_CALL_FAILED = "voice_ai_call_failed"
-- VOICE_AI_CALL_STARTED = "voice_ai_call_started"
-- VOICE_AI_CALL_LEFT_VOICEMAIL = "voice_ai_call_left_voicemail"
-- VOICE_AI_CALL_COMPLETED = "voice_ai_call_completed"
-- VOICE_AI_CALL_RESCHEDULED = "voice_ai_call_rescheduled"
-- VOICE_AI_CALL_PARTIALLY_COMPLETED = "voice_ai_call_partially_completed"
+- `voice ai call initiated`: Call attempt started, dialing in progress
+- `voice ai call failed`: Call failed to connect (busy, no answer, invalid number)
+- `voice ai call started`: Call successfully connected with recipient
+- `voice ai call left voicemail`: Voicemail detected and message left
+- `voice ai call completed`: Call successfully completed with desired outcome
+- `voice ai call rescheduled`: Call resulted in rescheduling request from user
+- `voice ai call partially completed`: Call completed with partial success
+
+- **Purpose**: These events enable downstream analytics, reporting, business workflows, and real-time monitoring of call campaigns.
 
 ---
 
