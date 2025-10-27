@@ -142,7 +142,7 @@ This is a voice call processing system that handles outbound calls, processes we
 
 ## Event Types
 
-The system uses ABT (Activity-Based Tracking) events to monitor call lifecycle:
+The system uses ABT (Activity-Based Triggering) events to monitor call lifecycle:
 
 | Event Name | Trigger Point | Sent By |
 |------------|--------------|---------|
